@@ -39,6 +39,22 @@ def test_lecture_summary():
     assert "まだありません" in tools.get_lecture_summary(99)
 
 
+def test_make_quiz_uses_term_from_requested_lecture(monkeypatch):
+    terms = [
+        {"lecture": 2, "term": "PEFT", "definition": "一部のパラメータだけを調整する手法。"},
+        {"lecture": 3, "term": "ツール", "definition": "外部機能を呼び出す仕組み。"},
+    ]
+    monkeypatch.setattr(tools, "load_glossary", lambda: terms)
+    monkeypatch.setattr(tools.random, "choice", lambda candidates: candidates[0])
+
+    quiz = json.loads(tools.make_quiz(2))
+
+    assert quiz == {
+        "question": "「PEFT」の意味は？",
+        "answer": "一部のパラメータだけを調整する手法。",
+    }
+
+
 def test_default_question_of_lecture1_is_answerable_from_glossary():
     """第1回の既定の質問（app.ask）は、第3回のエージェントが用語集で正しく答えられること。"""
     from app.ask import DEFAULT_QUESTION
